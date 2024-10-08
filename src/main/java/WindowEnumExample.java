@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.sun.jna.platform.win32.User32.HWND;
 
@@ -89,19 +90,18 @@ public class WindowEnumExample {
     }
 
 
-    private static HWND enumAllSubWindows(WinDef.HWND root, int indent) throws IOException {
+    private static HWND enumAllSubWindows(WinDef.HWND root, int indent, Consumer<String> logger) throws IOException {
 
-        if(INSTANCE.GetClassNameA(root).equalsIgnoreCase("Edit")) {
-            return root;
-        }
+//        if(INSTANCE.GetClassNameA(root).equalsIgnoreCase("Edit")) {
+//            return root;
+//        }
 
         StringBuilder indentStr = new StringBuilder();
         for (int i = 0; i < indent; i++) {
             indentStr.append("        ");
         }
 
-        FW.write(indentStr + INSTANCE.GetClassNameA(root) + " -- " + INSTANCE.GetWindowTextW(root));
-        FW.newLine();
+        logger.accept(indentStr + INSTANCE.GetClassNameA(root) + " -- " + INSTANCE.GetWindowTextW(root));
 
         List<WinDef.HWND> subHandlers = new ArrayList<>();
 
@@ -118,7 +118,7 @@ public class WindowEnumExample {
         }
 
         for (WinDef.HWND subHandler : subHandlers) {
-            HWND hwnd = enumAllSubWindows(subHandler, indent + 1);
+            HWND hwnd = enumAllSubWindows(subHandler, indent + 1, logger);
             if(hwnd != null) {
                 return hwnd;
             }
@@ -147,6 +147,16 @@ public class WindowEnumExample {
                 LOG.newLine();
                 LOG.write("ClassName：" + INSTANCE.GetClassNameA(warningWindow));
                 LOG.newLine();
+
+                enumAllSubWindows(warningWindow, 0, a -> {
+                    try {
+                        LOG.write(a);
+                        LOG.newLine();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
                 // 直接关闭窗口，没选中"是(Y)"，应该发送一个Y按键消息
                 LOG.write("SendCloseMessage: " + INSTANCE.SendMessageA(warningWindow, com.sun.jna.platform.win32.User32.WM_CLOSE, new WinDef.WPARAM(), new WinDef.LPARAM()));
                 LOG.newLine();
