@@ -16,13 +16,10 @@ import static com.sun.jna.platform.win32.User32.HWND;
 
 public class WindowEnumExample {
 
-    private static final BufferedWriter FW;
-
     private static final BufferedWriter LOG;
 
     static {
         try {
-            FW = new BufferedWriter(new FileWriter("C:\\Users\\Administrator\\Desktop\\subWindow.txt", true));
             LOG = new BufferedWriter(new FileWriter("C:\\Users\\Administrator\\Desktop\\AutoClose.log", true));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -220,6 +217,6 @@ public class WindowEnumExample {
 
         }
 
-        FW.flush();
+//        FW.flush();
     }
 }
