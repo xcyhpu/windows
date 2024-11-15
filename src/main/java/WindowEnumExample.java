@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -20,6 +22,15 @@ import java.util.function.Predicate;
 import static com.sun.jna.platform.win32.User32.HWND;
 
 public class WindowEnumExample {
+
+
+    private static final Set<String> TITLE_SET = new HashSet<>();
+
+    static {
+        TITLE_SET.add("Microsoft Word 安全声明");
+        TITLE_SET.add("officeconvert.exe - 应用程序错误");
+        TITLE_SET.add("WINWORD.EXE - 应用程序错误");
+    }
 
 
 
@@ -73,7 +84,8 @@ public class WindowEnumExample {
             final List<HWND> WARNING_WINDOWS = new ArrayList<>();
             INSTANCE.EnumWindows((hWnd, pointer) -> {
                 String title = INSTANCE.GetWindowTextW(hWnd);
-                if (title.equals("Microsoft Word 安全声明")) {
+                if(TITLE_SET.contains(title)) {
+                    log("Add Window", title);
                     WARNING_WINDOWS.add(hWnd);
                 }
                 return true;
